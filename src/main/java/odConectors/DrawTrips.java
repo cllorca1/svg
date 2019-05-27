@@ -1,11 +1,15 @@
-package grid;
+package odConectors;
 
+import grid.Grid;
 import org.jfree.graphics2d.svg.SVGGraphics2D;
 import org.jfree.graphics2d.svg.SVGUnits;
 import org.jfree.graphics2d.svg.SVGUtils;
 
 import java.awt.*;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,7 +19,7 @@ public class DrawTrips {
 
     public static void main(String[] args) throws IOException {
 
-        double scaleFactor = 0.01;
+        double scaleFactor = 0.001;
 
         String fileName = args[0];
         List<Trip> trips = readFile(fileName, scaleFactor);
@@ -26,12 +30,6 @@ public class DrawTrips {
         grid.generateGrid(boundingBox.get("minX") - 1000 , boundingBox.get("minY") - 1000 ,
                 boundingBox.get("maxX") + 1000 , boundingBox.get("maxY") + 1000);
 
-        double maxStroke = 500;
-
-        for (Trip trip : trips) {
-                grid.drawPath(trip.origX, trip.origY, trip.destX, trip.destY);
-        }
-
 
         int leftCorner = (int) Math.floor(boundingBox.get("minX"));
         int bottomCorner = (int) Math.floor(boundingBox.get("minY"));
@@ -39,37 +37,19 @@ public class DrawTrips {
 
         SVGGraphics2D svg = new SVGGraphics2D((int) (boundingBox.get("maxX") - leftCorner),
                 (int) (boundingBox.get("maxY") - bottomCorner), SVGUnits.PT);
-        Color color = new Color(1, 1, 1);
+        Color color = new Color(201, 115, 114);
         svg.setColor(color);
+        svg.setStroke(new BasicStroke(20));
 
-        Map<Integer, Map<Integer, Double>> hLinksMap = grid.gethLinks();
-        for (int i : hLinksMap.keySet()) {
-            for (int j : hLinksMap.get(i).keySet()) {
-                double flow = hLinksMap.get(i).get(j);
-                if (flow > 0) {
-                    svg.setStroke(new BasicStroke((float) Math.min(maxStroke, flow)));
-                    int x1 = j * 1000 - leftCorner;
-                    int y1 = topCorner - i * 1000;
-                    svg.drawLine(x1, y1, x1 - 1000, y1);
-                }
-            }
+        for (Trip trip : trips) {
+            svg.drawLine((int) trip.origX - leftCorner,
+                    topCorner - (int)trip.origY,
+                    (int) trip.destX - leftCorner,
+                    topCorner - (int) trip.destY);
         }
 
-        Map<Integer, Map<Integer, Double>> vLinksMap = grid.getvLinks();
+        SVGUtils.writeToSVG(new File("file.svg"), svg.getSVGElement());
 
-        for (int i : vLinksMap.keySet()) {
-            for (int j : vLinksMap.get(i).keySet()) {
-                double flow = vLinksMap.get(i).get(j);
-                if (flow > 0) {
-                    svg.setStroke(new BasicStroke((float) Math.min(maxStroke, flow)));
-                    int x1 = j * 1000 - leftCorner;
-                    int y1 = topCorner - i * 1000;
-                    svg.drawLine(x1, y1, x1, y1 - 1000);
-                }
-            }
-        }
-
-        SVGUtils.writeToSVG(new File("file.pdf"), svg.getSVGElement());
 
     }
 
