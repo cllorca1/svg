@@ -29,28 +29,24 @@ public class SvgRunBldg {
         SVGGraphics2D svgGraphic = new SVGGraphics2D(width, height, SVGUnits.MM);
         Random random = new Random();
 
-        int xOrigin = 250;
+        int xOrigin;
         int yOrigin = 250;
 
         int alturaPiso = 70 + 110 + 110 + 45;
 
-        for (int piso = 0; piso < 30; piso++) {
-
+        for (int piso = 0; piso < 40; piso++) {
+            xOrigin = 250;
+            if (piso % 2 == 0){
+                xOrigin += 145;
+            }
             int thisYOrigin = yOrigin + piso * (alturaPiso);
-            dibujaBalcon1(svgGraphic, xOrigin, thisYOrigin);
             dibujaLateralIzq(svgGraphic, xOrigin, thisYOrigin);
-            dibujaBloqueVacio(svgGraphic, xOrigin + 7 * 145, thisYOrigin);
-            dibujaBalcon1(svgGraphic, xOrigin + 145 * 8, thisYOrigin);
-            dibujaSombraBalcon1Izquierdo(svgGraphic, xOrigin + 145 * 8, thisYOrigin);
-            dibujaBloqueVacio(svgGraphic, xOrigin + 15 * 145, thisYOrigin);
-            dibujaBalcon1(svgGraphic, xOrigin + 145 * 16, thisYOrigin);
-            dibujaSombraBalcon1Izquierdo(svgGraphic, xOrigin + 145 * 16, thisYOrigin);
-            dibujaLateralDerecho(svgGraphic, xOrigin + 23 * 145, thisYOrigin);
-            dibujaRopa(svgGraphic, xOrigin, thisYOrigin);
-            dibujaRopa(svgGraphic, xOrigin + 145 * 8, thisYOrigin);
-            dibujaRopa(svgGraphic, xOrigin + 145 * 16, thisYOrigin);
-
-
+            for (int bloque = 0; bloque < 7; bloque++){
+                dibujaBloque(svgGraphic, xOrigin, thisYOrigin);
+                dibujaRopa(svgGraphic, xOrigin, thisYOrigin);
+                xOrigin += 145 * 8;
+            }
+            dibujaLateralDerecho(svgGraphic, xOrigin, thisYOrigin);
         }
 
 
@@ -58,6 +54,11 @@ public class SvgRunBldg {
         SVGUtils.writeToSVG(new File("file.svg"), svgGraphic.getSVGElement());
 
 
+    }
+
+    private static void dibujaBloque(SVGGraphics2D svgGraphic, int xOrigin, int thisYOrigin) {
+        dibujaBalcon1(svgGraphic, xOrigin, thisYOrigin);
+        dibujaBloqueVacio(svgGraphic, xOrigin + 7 * 145, thisYOrigin);
     }
 
     private static void dibujaRopa(SVGGraphics2D svgGraphic, int xOrigin, int thisYOrigin) {
