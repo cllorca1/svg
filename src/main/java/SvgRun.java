@@ -16,13 +16,13 @@ public class SvgRun {
         int height = 2160;
 
         int minRectWidth = 100;
-        int maxRectWidth = 400;
+        int maxRectWidth = 300;
 
-        double multiplicator = 1.01;
+        double multiplicator = 1.005;
 
         int divergence = 10;
 
-        SVGGraphics2D svgGraphic = new SVGGraphics2D(3840,2160, SVGUnits.PT);
+        SVGGraphics2D svgGraphic = new SVGGraphics2D(width,height, SVGUnits.PT);
 
         svgGraphic.setColor(new Color(255, 255, 255));
         svgGraphic.fillRect(0,0,3840,2160);
@@ -32,10 +32,11 @@ public class SvgRun {
         Color testColor = new Color(0, 100, 200);
 
         int y = 250;
-        double scale = 3;
-
+        double scale = 5;
+        double antenaWidth = 2;
         int counter = 0;
-        double grayAttenuation = 1.5;
+        double antenaHeight = 50;
+        double grayAttenuation = 1.6;
         while (y < height && counter < 300){
 
             int x = (int) (random.nextDouble()*width);
@@ -44,8 +45,8 @@ public class SvgRun {
             double colorDivergenceRandomNumber = random.nextDouble();
             int colorDeviation = (int)((divergence * (0.5 - colorDivergenceRandomNumber)) - counter / grayAttenuation);
             int r = 200 + colorDeviation;
-            int g = 50 + colorDeviation;
-            int b = 10 + colorDeviation;
+            int g = 200 + colorDeviation;
+            int b = 200 + colorDeviation;
 
             r = Math.max(r,1);
             g = Math.max(g,1);
@@ -54,10 +55,14 @@ public class SvgRun {
             svgGraphic.setColor(color);
 
             svgGraphic.fillRect(x,y,recWidth,height - y);
+            antenaHeight = antenaHeight*multiplicator;
+            antenaWidth =  antenaWidth*multiplicator;
+            svgGraphic.fillRect(x+recWidth/2,y- (int) antenaHeight,(int)antenaWidth,(int)antenaHeight);
             svgGraphic.setColor(new Color(0,0,0));
             svgGraphic.setStroke(new BasicStroke());
             svgGraphic.draw(new Rectangle2D.Double(x,y,recWidth,height - y));
-            y = y + (int)((1 - random.nextDouble()) *scale);
+            svgGraphic.draw(new Rectangle2D.Double(x+recWidth/2,y- (int) antenaHeight,(int)antenaWidth,(int)antenaHeight));
+            y = y + Math.min((int)((1 - random.nextDouble()) *scale),50);
             scale = scale*multiplicator;
 
             counter++;
