@@ -1,3 +1,4 @@
+import javafx.scene.shape.StrokeLineCap;
 import org.jfree.graphics2d.svg.SVGGraphics2D;
 import org.jfree.graphics2d.svg.SVGUnits;
 import org.jfree.graphics2d.svg.SVGUtils;
@@ -48,12 +49,21 @@ public class SvgRun {
             int r = 200 + colorDeviation;
             int g = 200 + colorDeviation;
             int b = 200 + colorDeviation;
-            r = Math.max(r,1);
-            g = Math.max(g,1);
-            b = Math.max(b,1);
-            Color color = new Color(r,g,b);
-            svgGraphic.setColor(color);
-            svgGraphic.fillRect(x,y,recWidth,height - y);
+
+            for (int yLine = y; yLine<height; yLine = yLine+ (int) floorHeight){
+                int thisGrayVariation = random.nextInt(5);
+                int thisR = Math.max(r,1) + thisGrayVariation;
+                int thisG = Math.max(g,1) + thisGrayVariation;
+                int thisB = Math.max(b,1) + thisGrayVariation;
+                thisR = Math.min(thisR,255);
+                thisG = Math.min(thisG,255);
+                thisB = Math.min(thisB,255);
+
+                Color color = new Color(thisR ,thisG ,thisB);
+                svgGraphic.setColor(color);
+                svgGraphic.fillRect(x,yLine,recWidth,(int) floorHeight);
+            }
+            //svgGraphic.fillRect(x,y,recWidth,height - y);
             svgGraphic.setColor(new Color(0,0,0));
             svgGraphic.setStroke(new BasicStroke());
             svgGraphic.draw(new Rectangle2D.Double(x,y,recWidth,height - y));
