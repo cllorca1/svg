@@ -44,7 +44,7 @@ public class SvgRoad {
             int curveSign = random.nextBoolean()? 1 : -1;
             Curve myCurve = new Curve(minR + random.nextDouble() * (maxR - minR),
                     myTangent.getX(), myTangent.getY(), myTangent.getFinalAngle(),
-                    minAngle + random.nextDouble() * (maxAngle - minAngle) * curveSign);
+                    (minAngle + random.nextDouble() * (maxAngle - minAngle)) * curveSign);
             myRoad.getElements().put(seq, myTangent);
             myRoad.getElements().put(seq + 1, myCurve);
             svgGraphic.setColor(new Color(255, 0, 0));

@@ -17,6 +17,7 @@ public class Curve implements RoadElement {
     private final double cuerda;
     private final double anguloCuerda;
     private final static double DELTA_L = 1;
+    private final int sign;
     private ArrayList<Point> points;
     private double finalX;
     private double finalY;
@@ -27,10 +28,11 @@ public class Curve implements RoadElement {
         this.x0 = x0;
         this.y0 = y0;
         this.intialAngle = intialAngle;
+        sign = (int) Math.signum(curveAngle);
         this.curveAngle = curveAngle;
         this.length = radius * curveAngle * RoadElement.toRad;
-        cuerda = 2 * radius * Math.cos((180 - curveAngle) / 2 * RoadElement.toRad);
-        anguloCuerda = intialAngle + (90 - (180 - curveAngle) / 2);
+        cuerda = 2 * radius * Math.cos((180 - Math.abs(curveAngle)) / 2 * RoadElement.toRad);
+        anguloCuerda = intialAngle + sign * (90 - (180 - Math.abs(curveAngle)) / 2);
 
     }
 
@@ -43,7 +45,7 @@ public class Curve implements RoadElement {
         double alpha = this.intialAngle;
         while (cumLength < this.length) {
             double miniAngle = 180 - 2 * Math.acos(DELTA_L / 2 / radius) / RoadElement.toRad;
-            Curve miniCurve = new Curve(radius, x, y, alpha, miniAngle);
+            Curve miniCurve = new Curve(radius, x, y, alpha, miniAngle*sign);
             x = miniCurve.getXExact();
             y = miniCurve.getYExact();
             alpha = miniCurve.getFinalAngleExact();
