@@ -8,12 +8,14 @@ public class Tangent implements RoadElement {
     final double x0;
     final double y0;
     final double intialAngle;
+    final double laneWidth;
 
-    public Tangent(double length, double x0, double y0, double intialAngle) {
+    public Tangent(double length, double x0, double y0, double intialAngle, double laneWidth) {
         this.length = length;
         this.x0 = x0;
         this.y0 = y0;
         this.intialAngle = intialAngle;
+        this.laneWidth = laneWidth;
     }
 
 
@@ -49,6 +51,11 @@ public class Tangent implements RoadElement {
 
     @Override
     public void draw(SVGGraphics2D svgGraphics2D) {
-        svgGraphics2D.drawLine((int) x0, (int)y0, (int)this.getX(), (int)this.getY());
+        svgGraphics2D.rotate(intialAngle * RoadElement.toRad, x0, y0);
+        svgGraphics2D.setColor(SvgRoad.ROAD);
+        svgGraphics2D.fillRect((int) x0, (int) (y0 - laneWidth), (int) length, (int) (2 * laneWidth));
+        svgGraphics2D.setColor(SvgRoad.LINE);
+        svgGraphics2D.drawLine((int) x0, (int) y0, (int) (x0 + length), (int) y0);
+        svgGraphics2D.rotate(-intialAngle * RoadElement.toRad, x0, y0);
     }
 }

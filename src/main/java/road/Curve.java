@@ -3,7 +3,7 @@ package road;
 import org.jfree.graphics2d.svg.SVGGraphics2D;
 
 import java.awt.*;
-import java.lang.reflect.Array;
+import java.awt.geom.Path2D;
 import java.util.ArrayList;
 
 public class Curve implements RoadElement {
@@ -22,17 +22,23 @@ public class Curve implements RoadElement {
     private double finalX;
     private double finalY;
     private double finalAngle;
+    private final double laneWidth;
+    private double centerX;
+    private double centerY;
 
-    public Curve(double radius, double x0, double y0, double intialAngle, double curveAngle) {
+    public Curve(double radius, double x0, double y0, double intialAngle, double curveAngle, double laneWidth) {
         this.radius = radius;
         this.x0 = x0;
         this.y0 = y0;
         this.intialAngle = intialAngle;
         sign = (int) Math.signum(curveAngle);
         this.curveAngle = curveAngle;
-        this.length = radius * curveAngle * RoadElement.toRad;
+        this.laneWidth = laneWidth;
+        this.length = Math.abs(radius * curveAngle * RoadElement.toRad);
         cuerda = 2 * radius * Math.cos((180 - Math.abs(curveAngle)) / 2 * RoadElement.toRad);
         anguloCuerda = intialAngle + sign * (90 - (180 - Math.abs(curveAngle)) / 2);
+        this.centerX = x0 - sign * radius * Math.sin(intialAngle * RoadElement.toRad);
+        this.centerY = y0 + sign * radius * Math.cos(intialAngle * RoadElement.toRad);
 
     }
 
@@ -45,7 +51,7 @@ public class Curve implements RoadElement {
         double alpha = this.intialAngle;
         while (cumLength < this.length) {
             double miniAngle = 180 - 2 * Math.acos(DELTA_L / 2 / radius) / RoadElement.toRad;
-            Curve miniCurve = new Curve(radius, x, y, alpha, miniAngle*sign);
+            Curve miniCurve = new Curve(radius, x, y, alpha, miniAngle * sign, laneWidth);
             x = miniCurve.getXExact();
             y = miniCurve.getYExact();
             alpha = miniCurve.getFinalAngleExact();
@@ -90,27 +96,54 @@ public class Curve implements RoadElement {
         return finalAngle;
     }
 
-    public double getXExact() {
+
+    private double getXExact() {
         return x0 + cuerda * Math.cos(anguloCuerda * RoadElement.toRad);
     }
 
 
-    public double getYExact() {
+    private double getYExact() {
         return y0 + cuerda * Math.sin(anguloCuerda * RoadElement.toRad);
     }
 
 
-    public double getFinalAngleExact() {
+    private double getFinalAngleExact() {
         return intialAngle + curveAngle;
     }
 
     @Override
     public void draw(SVGGraphics2D svgGraphics2D) {
         points = generateCurve();
+
+        Path2D path2D = new Path2D.Float();
+        svgGraphics2D.setColor(SvgRoad.ROAD);
         Point previousPoint = points.get(0);
+        double proportion = (radius + laneWidth)/radius;
+        path2D.moveTo(centerX + (previousPoint.x - centerX) * proportion,
+                centerY + (previousPoint.y - centerY) * proportion);
         for (int i = 1; i < points.size(); i++) {
             Point thisPoint = points.get(i);
-            svgGraphics2D.drawLine((int) previousPoint.x, (int) previousPoint.y, (int) thisPoint.x, (int) thisPoint.y);
+            path2D.lineTo(centerX + (thisPoint.x - centerX) * proportion,
+                    centerY + (thisPoint.y - centerY) * proportion);
+        }
+
+        previousPoint = points.get(points.size()- 1);
+        proportion = (radius - laneWidth)/radius;
+        path2D.lineTo(centerX + (previousPoint.x - centerX) * proportion,
+                centerY + (previousPoint.y - centerY) * proportion);
+        for (int i = points.size() - 1; i >= 0; i--) {
+            Point thisPoint = points.get(i);
+            path2D.lineTo(centerX + (thisPoint.x - centerX) * proportion,
+                    centerY + (thisPoint.y - centerY) * proportion);
+        }
+        path2D.closePath();
+        svgGraphics2D.fill(path2D);
+        previousPoint = points.get(0);
+        svgGraphics2D.setColor(SvgRoad.LINE);
+        for (int i = 1; i < points.size(); i++) {
+            Point thisPoint = points.get(i);
+            svgGraphics2D.setColor(SvgRoad.LINE);
+            svgGraphics2D.drawLine(previousPoint.x, previousPoint.y, thisPoint.x, thisPoint.y);
             previousPoint = thisPoint;
         }
     }
