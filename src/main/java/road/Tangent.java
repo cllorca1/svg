@@ -2,6 +2,8 @@ package road;
 
 import org.jfree.graphics2d.svg.SVGGraphics2D;
 
+import java.awt.*;
+
 public class Tangent implements RoadElement {
 
     final double length;
@@ -9,6 +11,7 @@ public class Tangent implements RoadElement {
     final double y0;
     final double intialAngle;
     final double laneWidth;
+    final static int correctionFill = 10;
 
     public Tangent(double length, double x0, double y0, double intialAngle, double laneWidth) {
         this.length = length;
@@ -53,9 +56,15 @@ public class Tangent implements RoadElement {
     public void draw(SVGGraphics2D svgGraphics2D) {
         svgGraphics2D.rotate(intialAngle * RoadElement.toRad, x0, y0);
         svgGraphics2D.setColor(SvgRoad.ROAD);
-        svgGraphics2D.fillRect((int) x0, (int) (y0 - laneWidth), (int) length, (int) (2 * laneWidth));
+        svgGraphics2D.fillRect((int) x0, (int) (y0 - laneWidth), (int) length + correctionFill, (int) (2 * laneWidth));
         svgGraphics2D.setColor(SvgRoad.LINE);
+        svgGraphics2D.setStroke(SvgRoad.STROKE_CENTERLINE);
         svgGraphics2D.drawLine((int) x0, (int) y0, (int) (x0 + length), (int) y0);
+        svgGraphics2D.setStroke(SvgRoad.STROKE_SHOULDER);
+        svgGraphics2D.setColor(SvgRoad.COLOR_SHOULDER);
+        svgGraphics2D.drawLine((int) x0, (int) (y0-laneWidth), (int) (x0 + length), (int) (y0-laneWidth));
+        svgGraphics2D.drawLine((int) x0, (int) (y0 + laneWidth), (int) (x0 + length), (int) (y0+ laneWidth));
+        svgGraphics2D.setStroke(new BasicStroke());
         svgGraphics2D.rotate(-intialAngle * RoadElement.toRad, x0, y0);
     }
 }

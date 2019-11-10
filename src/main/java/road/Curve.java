@@ -16,7 +16,7 @@ public class Curve implements RoadElement {
     private final double length;
     private final double cuerda;
     private final double anguloCuerda;
-    private final static double DELTA_L = 1;
+    private final static double DELTA_L = 10;
     private final int sign;
     private ArrayList<Point> points;
     private double finalX;
@@ -114,37 +114,54 @@ public class Curve implements RoadElement {
     @Override
     public void draw(SVGGraphics2D svgGraphics2D) {
         points = generateCurve();
-
-        Path2D path2D = new Path2D.Float();
+        Path2D platform = new Path2D.Float();
+        Path2D leftSideShoulder = new Path2D.Float();
+        Path2D rightSideShoulder = new Path2D.Float();
         svgGraphics2D.setColor(SvgRoad.ROAD);
         Point previousPoint = points.get(0);
+
         double proportion = (radius + laneWidth)/radius;
-        path2D.moveTo(centerX + (previousPoint.x - centerX) * proportion,
+        platform.moveTo(centerX + (previousPoint.x - centerX) * proportion,
+                centerY + (previousPoint.y - centerY) * proportion);
+        leftSideShoulder.moveTo(centerX + (previousPoint.x - centerX) * proportion,
                 centerY + (previousPoint.y - centerY) * proportion);
         for (int i = 1; i < points.size(); i++) {
             Point thisPoint = points.get(i);
-            path2D.lineTo(centerX + (thisPoint.x - centerX) * proportion,
+            platform.lineTo(centerX + (thisPoint.x - centerX) * proportion,
+                    centerY + (thisPoint.y - centerY) * proportion);
+            leftSideShoulder.lineTo(centerX + (thisPoint.x - centerX) * proportion,
                     centerY + (thisPoint.y - centerY) * proportion);
         }
 
         previousPoint = points.get(points.size()- 1);
         proportion = (radius - laneWidth)/radius;
-        path2D.lineTo(centerX + (previousPoint.x - centerX) * proportion,
+        platform.lineTo(centerX + (previousPoint.x - centerX) * proportion,
+                centerY + (previousPoint.y - centerY) * proportion);
+        rightSideShoulder.moveTo(centerX + (previousPoint.x - centerX) * proportion,
                 centerY + (previousPoint.y - centerY) * proportion);
         for (int i = points.size() - 1; i >= 0; i--) {
             Point thisPoint = points.get(i);
-            path2D.lineTo(centerX + (thisPoint.x - centerX) * proportion,
+            platform.lineTo(centerX + (thisPoint.x - centerX) * proportion,
+                    centerY + (thisPoint.y - centerY) * proportion);
+            rightSideShoulder.lineTo(centerX + (thisPoint.x - centerX) * proportion,
                     centerY + (thisPoint.y - centerY) * proportion);
         }
-        path2D.closePath();
-        svgGraphics2D.fill(path2D);
+        platform.closePath();
+        svgGraphics2D.fill(platform);
         previousPoint = points.get(0);
         svgGraphics2D.setColor(SvgRoad.LINE);
+        svgGraphics2D.setStroke(SvgRoad.STROKE_CENTERLINE);
+        Path2D centerLine = new Path2D.Float();
+        centerLine.moveTo(previousPoint.x, previousPoint.y);
         for (int i = 1; i < points.size(); i++) {
             Point thisPoint = points.get(i);
-            svgGraphics2D.setColor(SvgRoad.LINE);
-            svgGraphics2D.drawLine(previousPoint.x, previousPoint.y, thisPoint.x, thisPoint.y);
-            previousPoint = thisPoint;
+            centerLine.lineTo(thisPoint.x, thisPoint.y);
         }
+        svgGraphics2D.draw(centerLine);
+        svgGraphics2D.setColor(SvgRoad.COLOR_SHOULDER);
+        svgGraphics2D.setStroke(SvgRoad.STROKE_SHOULDER);
+        svgGraphics2D.draw(leftSideShoulder);
+        svgGraphics2D.draw(rightSideShoulder);
+        svgGraphics2D.setStroke(new BasicStroke());
     }
 }
