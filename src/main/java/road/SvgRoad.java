@@ -12,13 +12,14 @@ import java.util.Random;
 public class SvgRoad {
 
     final static int buffer = 100;
-    static Color BACKGROUND = new Color(115, 137, 123);
+    static Color BACKGROUND = new Color(75, 87, 78);
     static Color ROAD = new Color(56, 56, 56);
-    final static int LIGHTENING = 3;
+    final static int LIGHTENING = 1;
     final static Color LINE = new Color(251, 251, 251);
     final static Color COLOR_SHOULDER = new Color(238, 236, 238);
     static final BasicStroke STROKE_CENTERLINE = new BasicStroke(5, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 1f, new float[]{20f, 20f}, 1);
     static final BasicStroke STROKE_SHOULDER = new BasicStroke(10);
+    static double factorWidth = 1.0;
 
     public static void main(String[] args) throws IOException {
 
@@ -29,17 +30,17 @@ public class SvgRoad {
 
         svgGraphic.setColor(BACKGROUND);
         svgGraphic.fillRect(0,0,width, height);
-        double minL = 300;
-        double maxL = 500;
+        double minL = 200;
+        double maxL = 1000;
 
-        double minR = 500;
-        double maxR = 1200;
+        double minR = 250;
+        double maxR = 1000;
 
-        double minAngle = 30;
-        double maxAngle = 100;
+        double minAngle = 25;
+        double maxAngle = 195;
 
         double laneWidth = 50;
-        int roads = 30;
+        int roads = 15;
 
         for (int r = 0; r < roads; r++) {
             Road myRoad = new Road(2, laneWidth);
@@ -72,9 +73,10 @@ public class SvgRoad {
                 svgGraphic.setStroke(new BasicStroke(1));
                 myTangent.draw(svgGraphic);
                 int curveSign = random.nextBoolean() ? 1 : -1;
-                Curve myCurve = new Curve(minR + random.nextDouble() * (maxR - minR),
+                double curveAngle = ((maxAngle - minAngle)/2 + random.nextGaussian() * (maxAngle - minAngle)/4) * curveSign;
+                Curve myCurve = new Curve( Math.pow(Math.abs(curveAngle), -0.999) * 37000,
                         myTangent.getX(), myTangent.getY(), myTangent.getFinalAngle(),
-                        (minAngle + random.nextDouble() * (maxAngle - minAngle)) * curveSign, laneWidth);
+                        curveAngle, laneWidth);
                 myRoad.getElements().put(seq++, myTangent);
                 myRoad.getElements().put(seq++, myCurve);
                 myCurve.draw(svgGraphic);
@@ -82,9 +84,13 @@ public class SvgRoad {
                 y = myCurve.getY();
                 inside = isPointInsideDrawing(x, y, width, height);
                 angle = myCurve.getFinalAngle();
+
             }
             try {
-                ROAD = new Color(ROAD.getRed() + LIGHTENING, ROAD.getGreen() + LIGHTENING, ROAD.getBlue() + LIGHTENING);
+                int randomColorChange = random.nextInt(10);
+                ROAD = new Color(ROAD.getRed() + LIGHTENING - randomColorChange,
+                        ROAD.getGreen() + LIGHTENING - randomColorChange,
+                        ROAD.getBlue() + LIGHTENING -randomColorChange);
             } catch (Exception e) {
                 System.out.println("readjust colors!!!!");
             }
@@ -109,10 +115,10 @@ public class SvgRoad {
     }
 
     enum Side {
-        TOP(45, 135),
-        BOTTOM(-135, -45),
-        LEFT(45, -45),
-        RIGHT(135, 225);
+        TOP(90, 90),
+        BOTTOM(-90, -90),
+        LEFT(0, 0),
+        RIGHT(180, 180);
 
         private int maxAngle;
         private int minAngle;
@@ -123,7 +129,7 @@ public class SvgRoad {
         }
 
         static Side chooseSide(Random random) {
-            return Side.values()[random.nextInt(3)];
+            return Side.values()[random.nextInt(4)];
         }
     }
 }

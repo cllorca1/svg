@@ -4,6 +4,8 @@ import org.jfree.graphics2d.svg.SVGGraphics2D;
 
 import java.awt.*;
 
+import static road.SvgRoad.factorWidth;
+
 public class Tangent implements RoadElement {
 
     final double length;
@@ -55,6 +57,8 @@ public class Tangent implements RoadElement {
     @Override
     public void draw(SVGGraphics2D svgGraphics2D) {
         svgGraphics2D.rotate(intialAngle * RoadElement.toRad, x0, y0);
+        svgGraphics2D.setColor(SvgRoad.BACKGROUND);
+        svgGraphics2D.fillRect((int) x0, (int) (y0 - factorWidth * laneWidth), (int) length + correctionFill, (int) (2 * laneWidth * factorWidth));
         svgGraphics2D.setColor(SvgRoad.ROAD);
         svgGraphics2D.fillRect((int) x0, (int) (y0 - laneWidth), (int) length + correctionFill, (int) (2 * laneWidth));
         svgGraphics2D.setColor(SvgRoad.LINE);
