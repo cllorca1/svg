@@ -14,7 +14,7 @@ public class SvgRoad {
     final static int buffer = 100;
     static Color BACKGROUND = new Color(75, 87, 78);
     static Color ROAD = new Color(56, 56, 56);
-    final static int LIGHTENING = 1;
+    final static int LIGHTENING = 3;
     final static Color LINE = new Color(251, 251, 251);
     final static Color COLOR_SHOULDER = new Color(238, 236, 238);
     static final BasicStroke STROKE_CENTERLINE = new BasicStroke(5, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 1f, new float[]{20f, 20f}, 1);
@@ -23,8 +23,8 @@ public class SvgRoad {
 
     public static void main(String[] args) throws IOException {
 
-        int width = 5000;
-        int height = 5000;
+        int width = 10000;
+        int height = 10000;
 
         SVGGraphics2D svgGraphic = new SVGGraphics2D(width, height, SVGUnits.PT);
 
@@ -40,7 +40,7 @@ public class SvgRoad {
         double maxAngle = 195;
 
         double laneWidth = 50;
-        int roads = 15;
+        int roads = 30;
 
         for (int r = 0; r < roads; r++) {
             Road myRoad = new Road(2, laneWidth);
@@ -69,7 +69,7 @@ public class SvgRoad {
             int seq = 0;
             boolean inside = true;
             while (seq < 1000 && inside) {
-                Tangent myTangent = new Tangent(minL + random.nextDouble() * (maxL - minL), x, y, angle, laneWidth);
+                Tangent myTangent = new Tangent(minL + random.nextDouble() * (maxL - minL), x, y, angle, laneWidth, random);
                 svgGraphic.setStroke(new BasicStroke(1));
                 myTangent.draw(svgGraphic);
                 int curveSign = random.nextBoolean() ? 1 : -1;
